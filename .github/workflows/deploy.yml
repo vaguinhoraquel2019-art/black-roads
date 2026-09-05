@@ -1,0 +1,50 @@
+name: Deploy no GitHub Pages
+
+on:
+  # Roda automaticamente a cada push na branch main
+  push:
+    branches:
+      - main
+  # Permite rodar manualmente pela aba Actions no GitHub
+  workflow_dispatch:
+
+# Permissão para escrever no GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Garante que só um deploy rode por vez
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Publicar no GitHub Pages
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      # 1. Baixa o código do repositório
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Configura o GitHub Pages
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      # 3. Empacota os arquivos estáticos para upload
+      #    Inclui tudo exceto arquivos internos do Git e GitHub
+      - name: Empacotar arquivos
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      # 4. Faz o deploy no GitHub Pages
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
