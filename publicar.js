@@ -38,9 +38,13 @@ async function criarRepo() {
   }, body);
 
   if (res.status === 201) {
-    console.log('OK:criado');
+    // Retorna o login exato como o GitHub registrou (pode diferir em maiusculas)
+    console.log('OK:criado:' + res.body.owner.login + ':' + res.body.name);
   } else if (res.status === 422) {
-    console.log('OK:existe');
+    // Repositorio ja existe — busca o login real via /user
+    const me = await request({ hostname: 'api.github.com', path: '/user', method: 'GET', headers });
+    const login = (me.body && me.body.login) ? me.body.login : GH_USER;
+    console.log('OK:existe:' + login + ':' + REPO_NOME);
   } else if (res.status === 401) {
     console.log('ERRO:Token invalido ou sem permissao. Gere um novo token com permissao "repo".');
   } else {

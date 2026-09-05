@@ -69,14 +69,25 @@ echo [INFO] Criando repositorio "!REPO_NOME!" no GitHub...
 node "%~dp0publicar.js" "!GH_USER!" "!GH_TOKEN!" "!REPO_NOME!" "criar-repo" > "%TEMP%\br_result.txt" 2>&1
 set /p API_RESULT=<"%TEMP%\br_result.txt"
 
-if "!API_RESULT!"=="OK:criado" (
+REM Formato esperado: OK:criado:login:repo  ou  OK:existe:login:repo
+for /f "tokens=1,2,3,4 delims=:" %%a in ("!API_RESULT!") do (
+    set API_STATUS=%%a:%%b
+    set GH_LOGIN=%%c
+    set GH_REPO=%%d
+)
+
+if "!API_STATUS!"=="OK:criado" (
     echo [OK] Repositorio criado com sucesso!
-) else if "!API_RESULT!"=="OK:existe" (
+) else if "!API_STATUS!"=="OK:existe" (
     echo [OK] Repositorio ja existe, usando o existente.
 ) else (
     echo [ERRO] !API_RESULT!
     goto :fim
 )
+
+REM Usa o login real retornado pela API (garante maiusculas corretas)
+if not "!GH_LOGIN!"=="" set GH_USER=!GH_LOGIN!
+if not "!GH_REPO!"=="" set REPO_NOME=!GH_REPO!
 
 REM ════════════════════════════════════════════
 REM  4. CONFIGURA GIT LOCAL
