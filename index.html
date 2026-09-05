@@ -14,7 +14,6 @@
   <meta name="twitter:image" content="https://zunder.lat/images/zunder-card-z.jpg">
 
   <meta charset="UTF-8">
-  <meta name="turnstile-site-key" content="0x4AAAAAAEQa-y-AjOZyUXYh">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Black Roads — Script da Sala do Futuro: tarefas, redações e apostilas</title>
   <link rel="canonical" href="https://zunder.lat/">
@@ -656,7 +655,7 @@
           </button>
         </div>
 
-        <div class="login-turnstile">
+        <div class="login-turnstile" style="display:none">
           <div class="turnstile-wrap" id="turnstileLogin"></div>
         </div>
 
@@ -981,7 +980,6 @@
 
   <script src="js/notifications.js"></script>
   <script src="js/pending-jobs.js"></script>
-  <script src="js/turnstile.js"></script>
   <script src="js/platform-captcha.js"></script>
   <script>
     (function initSiteSplash() {
@@ -1084,6 +1082,14 @@
     digito.addEventListener('input', () => { digito.value = digito.value.replace(/[^0-9Xx]/g, '').slice(0, 2); });
 
     if (window.PlatformCaptcha && PlatformCaptcha.init) PlatformCaptcha.init('turnstileLogin');
+
+    // Captcha desativado — considera sempre resolvido
+    window.PlatformCaptcha = {
+      init() {},
+      isSolved() { return true; },
+      async requireActionToken() { return 'disabled'; },
+      reset() {},
+    };
 
     // Enquanto o Turnstile não estiver resolvido, nenhum caminho de login fica
     // disponível: nem o botão principal, nem os "Entrar" das contas salvas.
